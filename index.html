@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Ontology for resoloving 'Bag Of Files (bof)'</title>
+    <style>
+        #pylode {
+            position: fixed;
+            top: 130px;
+            left: -80px;
+            font-size: small;
+            transform: rotate(-90deg);
+            color: grey;
+        }
+        #pylode a {
+            font-size: 2em;
+            font-weight: bold;
+            text-decoration: none;
+            color: #005A9C;
+        }
+        #pylode a:hover {
+            color: #333;
+        }
+        #pylode #p {
+            color: #329545;
+        }
+        #pylode #y {
+            color: #f9cb33;
+        }
+        #pylode #version {
+            font-size: 1.0em;
+        }
+
+        .cardinality {
+            font-style: italic;
+            color: #aa00aa;
+        }
+
+        dl {
+            /*border: 1px solid navy;*/
+            /*padding:5px;*/
+        }
+
+        dt {
+            font-weight: bold;
+            padding: 0;
+        }
+
+        dd {
+            margin-bottom: 10px;
+            padding-top: 7px;
+        }
+
+        #metadata ul,
+        #classes ul {
+            list-style-type: none;
+        }
+
+        #metadata ul li,
+        #classes ul li {
+            margin-left: -40px;
+        }
+
+        ul.hlist {
+            list-style-type: none;
+            border: 1px solid navy;
+            padding:5px;
+            background-color: #F4FFFF;
+        }
+
+        ul.hierarchy {
+            border: 1px solid navy;
+            padding: 5px 25px 5px 25px;
+            background-color: #F4FFFF;
+        }
+
+
+        ul.hlist li {
+            display: inline;
+            margin-right: 10px;
+        }
+
+        .entity {
+            border: 1px solid navy;
+            margin:5px 0 5px 0;
+            padding: 5px;
+        }
+
+        .entity th {
+            width: 150px;
+            vertical-align: top;
+        }
+
+        .entity th,
+        .entity td {
+            padding-bottom: 20px;
+        }
+
+        .entity table th {
+            text-align: left;
+        }
+
+        section#overview img {
+            max-width: 1000px;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            text-align: left
+        }
+        h1, h2, h3 {
+            color: #005A9C; background: white
+        }
+        h1 {
+            font: 170% sans-serif;
+            line-height: 110%;
+        }
+        h2 {
+            font: 140% sans-serif;
+            margin-top:40px;
+        }
+        h3 {
+            font: 120% sans-serif;
+            margin-top: 20px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid navy;
+        }
+        h4 { font: bold 100% sans-serif }
+        h5 { font: italic 100% sans-serif }
+        h6 { font: small-caps 100% sans-serif }
+
+        body {
+            padding: 2em 70px 2em 70px;
+            margin: 0;
+            font-family: sans-serif;
+            color: black;
+            background: white;
+            background-position: top left;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            text-align: justify;
+        }
+
+        section {
+            max-width: 1500px;
+        }
+
+        .figure {
+            margin-bottom: 20px;
+        }
+
+        :link { color: #00C; background: transparent }
+        :visited { color: #609; background: transparent }
+        a:active { color: #C00; background: transparent }
+
+        .sup-c,
+        .sup-op,
+        .sup-fp,
+        .sup-dp,
+        .sup-ap,
+        .sup-p,
+        .sup-ni,
+        .sup-con,
+        .sup-col {
+            cursor:help;
+        }
+
+        .sup-c {
+            color:orange;
+        }
+
+        .sup-op {
+            color:navy;
+        }
+
+        .sup-fp {
+            color:lightskyblue;
+        }
+
+        .sup-dp {
+            color:green;
+        }
+
+        .sup-ap {
+            color:darkred;
+        }
+
+        .sup-p {
+            color:black;
+        }
+
+        .sup-ni {
+            color:brown;
+        }
+
+        .sup-con {
+            color:orange;
+        }
+
+        .sup-col {
+            color:darkred;
+        }
+
+        sup {
+            margin-left: -3px;
+        }
+        code {
+            font-size: large;
+            color: darkred;
+        }
+
+        /* less prominent links for properties */
+        .proplink {
+            color: #336;
+            text-decoration: none;
+        }
+
+#toc {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    height: 100%;
+    overflow-y: auto;
+    padding: 10px;
+    border: solid 1px navy;
+    font-size: small;
+    width: 180px;
+}
+#toc h3 {
+    margin-top: 5px;
+}
+
+#toc ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+#toc .first > li {
+    margin-top: 5px;
+}
+
+#toc .second,
+#toc .third {
+    padding-left: 10px;
+}
+
+#content {
+    width: calc(100% - 150px);
+}
+
+.hover_property {
+    cursor: help;
+    text-decoration: none;
+    border-bottom: dashed 1px;
+}
+
+.setclass {
+    list-style-type: none;
+}
+	</style>
+    <link href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABhklEQVQ4jbWPzStEURjG3yQLirlGKUnKFO45Z+SjmXvnnmthQcpCoVhYmD/AwmJiI3OvZuZc2U3UlKU0/gAslMw9JgvhHxAr2fko7r0jHSsl+TgbTz2Lt5731/MASEiJW9ONml2QyX6rsGalmnT74v8BDf12hxJfpV8d1uwNKUBYszabdFv84L8B9X0rESVmmUup2fme0cVhJWaZHw4NWL1SewEAfDe6H3Dy6Ll456WEJsRZS630MwCAOI20ei5OBpxse5zcBZw8eS4uPpfIuDiCainIg9umBCU0GZzgLZ9Hn31OgoATL+CkLDGB5H1OKj4nFd/FBxUXJ0UZNb4edw/6nLyJXaj5FeCVyPLNIVmYK8TG1IwWb16L1gEACAFV90ftoT8bdOX0EeyY99gxBXZMgRz6qGb1KantAACI0UvE6F5XJqEjpsdURouI0Vt5gGOUkUNnPu7ObGIIMfNaGqDmjDRi9FZldF1lRgYzeqUyeoiY4ag5Iy3RgOYRM8+/M2bG8efsO4hGrpmJseyMAAAAAElFTkSuQmCC" rel="icon" sizes="16x16" type="image/png">
+    <link href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAC40lEQVRYhe2UT0hUQRzHp6Iss1B3VZKIDbbdfW9mnoi4f3zzjkJQeOgS0SEIb1EWBGGlLLu460zQPQM1unUIIjA6rfpm6ZAhHjoIRVQUFUlEbG+euTsdXG1d3VL3bVD4g+9h+L35fT/8fvN7ADgY9aHY5fpIvK82HO9ysu66wxWOzbkjcekKx0a2ALYA/n2AGi3a6ArFezcidziecQygNhhrcUficjP6PwBqtGijKxy/thnVBePHywYoDsFhl53GV8SEcsTx4usCMLUewTVpc23BNvEzm6Neyf1+KcG2vwqwUjgrOJq2JmHftwmkVBRGTvncFodnbI7vChO/FRznCmHsNM7aHM9Yk7Df5iqsLMw9sMNOK2g+jS4IEz0UJv4iuJZb2RltWnB4UZqH6ioGAgAAGe5vtiZhtzDx7OoRadLmeM7m6IRjhnLMW2Vx1bA5GhAmnhIcz6/xNj4Ujsky8UspwfayjDPjsF2Y6L7N8Vzx/BfP+KPg6LbgSqd8DnfJW2CnbaLhfH5ephpqygJYvQU4Z3P82TLRsDDhUTnmrSq+Y3N0Mg+Xldy/zwEAnLMWZ3pHpNExmfLs/t0dOdVcbT0JeKxUwFP2VljjqiE47Jp53LTXNxhsUZjerTByXWX6VZWRs/4bIQ2ACv+UAomgDzLCISNZxAxZKMhIDjLy1JfsaK+I+eGBUBNk5E2x8RogX/PdcDZUqieWTSh5D6nOVKqfhoycUmlHFFIyu5RXqf7AcQDISCpv/tqbMBqK883RtmpISRoxQyJKPgGn3wNk5NEigDFa6hslqV/Kj+FdBQD0bshIDlKSLlVcoWQo36UhR80BAMB73lulMn0EMpJTqD6qJiOt3mho/8GbkT2BZNgDB/V+RI0fkOrT3kRIVQbaDizJm2hdNbINBxwk5xAj3yEjuV9rZ1iIkgxixkLBA83mz8uCjLwoGwAx0vOnFSy5mtR4VTaAQvVORMnwZgSpzkrV/QmdE2tKe46+MQAAAABJRU5ErkJggg==" rel="icon" sizes="32x32" type="image/png">
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+    <script id="schema.org" type="application/ld+json">
+[
+  {
+    "@id": "https://indigo-lab.github.io/bof",
+    "@type": [
+      "https://schema.org/DefinedTermSet"
+    ],
+    "https://schema.org/creator": [
+      {
+        "@id": "_:n52d53d8febbd4b48a74203c7345bcf4fb1"
+      }
+    ],
+    "https://schema.org/dateCreated": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#date",
+        "@value": "2024-10-30"
+      }
+    ],
+    "https://schema.org/description": [
+      {
+        "@language": "ja",
+        "@value": "DCAT で言及されている <a href='https://www.w3.org/TR/vocab-dcat-3/#examples-bag-of-files'>Bag Of Files</a> は\nデータカタログやレポジトリにおいて単にファイルが集められているものを指し、\n個々のファイル間の関係は整備されておらず、<code>dcat:Dataset</code> と <code>dcat:Distribution</code> が正しく区別されていません。\n\nこのオントロジーは Bag of Files を <code>bof:Bag</code> や <code>bof:File</code> といったクラスで記録し、\nそれらを Findable かつ Reusable な <code>dcat:Dataset</code> や <code>dcat:DatasetSeries</code> \nに再編成する過程で使用することを目的としています。\n    "
+      }
+    ],
+    "https://schema.org/name": [
+      {
+        "@value": "Ontology for resoloving 'Bag Of Files (bof)'"
+      }
+    ]
+  },
+  {
+    "@id": "_:n52d53d8febbd4b48a74203c7345bcf4fb1",
+    "https://schema.org/name": [
+      {
+        "@value": "indigo-lab"
+      }
+    ],
+    "https://schema.org/url": [
+      {
+        "@id": "https://github.com/indigo-lab"
+      }
+    ]
+  }
+]
+	</script>
+  </head>
+  <body>
+    <div id="content">
+      <div class="section" id="metadata">
+        <h1>Ontology for resoloving 'Bag Of Files (bof)'</h1>
+        <h2>Metadata</h2>
+        <dl>
+          <div>
+            <dt>
+              <strong>IRI</strong>
+            </dt>
+            <dd>
+              <code>https://indigo-lab.github.io/bof</code>
+            </dd>
+          </div>
+          <div>
+            <dt>
+              <a class="hover_property" href="http://purl.org/dc/terms/title" title="None. Defined in None">Title</a>
+            </dt>
+            <dd><p>Ontology for resoloving 'Bag Of Files (bof)'</p></dd>
+          </div>
+          <div>
+            <dt>
+              <a class="hover_property" href="http://purl.org/dc/terms/creator" title="None. Defined in None">Creator</a>
+            </dt>
+            <dd>
+              <span>
+                <a href="https://github.com/indigo-lab">indigo-lab</a>
+              </span>
+            </dd>
+          </div>
+          <div>
+            <dt>
+              <a class="hover_property" href="http://purl.org/dc/terms/created" title="None. Defined in None">Created</a>
+            </dt>
+            <dd><p>2024-10-30</p></dd>
+          </div>
+          <div>
+            <dt>
+              <a class="hover_property" href="http://purl.org/dc/terms/description" title="None. Defined in None">Description</a>
+            </dt>
+            <dd><p>DCAT で言及されている <a href='https://www.w3.org/TR/vocab-dcat-3/#examples-bag-of-files'>Bag Of Files</a> は
+データカタログやレポジトリにおいて単にファイルが集められているものを指し、
+個々のファイル間の関係は整備されておらず、<code>dcat:Dataset</code> と <code>dcat:Distribution</code> が正しく区別されていません。</p>
+<p>このオントロジーは Bag of Files を <code>bof:Bag</code> や <code>bof:File</code> といったクラスで記録し、
+それらを Findable かつ Reusable な <code>dcat:Dataset</code> や <code>dcat:DatasetSeries</code> 
+に再編成する過程で使用することを目的としています。</p></dd>
+          </div>
+        </dl>
+      </div>
+      <div class="section" id="classes">
+        <h2>Classes</h2>
+        <div class="property entity" id="bof:Bag">
+          <h3>bof:Bag
+            <sup class="sup-c" title="OWL/RDFS Class">c</sup>
+          </h3>
+          <table>
+            <tr>
+              <th>IRI</th>
+              <td>
+                <code>https://indigo-lab.github.io/bof#Bag</code>
+              </td>
+            </tr>
+            <tr>
+              <th>
+                <a class="hover_property" href="http://purl.org/dc/terms/description" title="None. Defined in None">Description</a>
+              </th>
+              <td><p>コンテナ、フォルダ、アーカイブ。他のファイルやコンテナ、フォルダ、アーカイブを保持する。<code>dcat:Dataset</code> のサブクラス。</p></td>
+            </tr>
+            <tr>
+              <th>
+                <a class="hover_property" href="http://www.w3.org/2004/02/skos/core#example" title="None. Defined in None">Example</a>
+              </th>
+              <td><pre>
+# Plateau プロジェクト全体を指すコンテナ
+
+&lt;urn:uuid:01923271-71e1-7223-a5c3-2f2bd0b7fb3a&gt;
+  a bof:Bag ;
+  dcat:landingPage
+    &lt;https://www.mlit.go.jp/plateau/&gt; ,
+    &lt;https://www.geospatial.jp/ckan/dataset/plateau&gt; ;
+.  
+
+# Plateau 東京23区2020年 一式を収録した zip
+
+&lt;ni:///sha-256;gS2jAHPpmJ_f5SYAEFhhtc1qXQB2ZrZjsJiLMmpPmWw&gt;
+  a bof:Bag ; 
+  rdfs:label "data/zip/13100_tokyo23-ku_2020_citygml_3_2_op.zip" ;
+  dcat:landingPage
+    &lt;https://www.geospatial.jp/ckan/dataset/plateau-tokyo23ku/resource/0bab2b7f-6962-41c8-872f-66ad9b40dcb1&gt; ;
+  dcat:distribution [
+    a dcat:Distribution ;
+    dcat:downloadURL
+      &lt;https://gic-plateau.s3.ap-northeast-1.amazonaws.com/2020/13100_tokyo23-ku_2020_citygml_3_2_op.zip&gt; ;
+  ] ;
+  dct:spatial &lt;http://data.e-stat.go.jp/lod/sac/13000&gt; ;
+  dct:temporal &lt;http://dbpedia.org/resource/2020&gt; ;
+  dct:isPartOf &lt;uuid:01923271-71e1-7223-a5c3-2f2bd0b7fb3a&gt; ;
+</pre></td>
+            </tr>
+            <tr>
+              <th>
+                <a class="hover_property" href="http://www.w3.org/2004/02/skos/core#note" title="None. Defined in None">Note</a>
+              </th>
+              <td><p><code>bof:Bag</code> の ID は <a href='https://dx.doi.org/10.17487/rfc9562'>UUID</a> で生成するものとします。</p>
+<p>ただし、zip, 7z, tar, tar.gz といったアーカイブファイルを <code>bof:Bag</code> としてモデリングする場合には
+当該ファイルの SHA256 を算出して <a href='https://dx.doi.org/10.17487/rfc6920'>'Named Information' Identifier</a> 
+を ID として使用します。</p></td>
+            </tr>
+            <tr>
+              <th>
+                <a class="hover_property" href="http://www.w3.org/2000/01/rdf-schema#subClassOf" title="None. Defined in None">Sub Class Of</a>
+              </th>
+              <td>
+                <a href="http://www.w3.org/ns/dcat#Dataset">dcat:Dataset</a>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="property entity" id="bof:File">
+          <h3>bof:File
+            <sup class="sup-c" title="OWL/RDFS Class">c</sup>
+          </h3>
+          <table>
+            <tr>
+              <th>IRI</th>
+              <td>
+                <code>https://indigo-lab.github.io/bof#File</code>
+              </td>
+            </tr>
+            <tr>
+              <th>
+                <a class="hover_property" href="http://purl.org/dc/terms/description" title="None. Defined in None">Description</a>
+              </th>
+              <td><p>ファイルの実体。<code>dcat:Dataset</code> のサブクラス。</p></td>
+            </tr>
+            <tr>
+              <th>
+                <a class="hover_property" href="http://www.w3.org/2004/02/skos/core#example" title="None. Defined in None">Example</a>
+              </th>
+              <td><pre># zip 内ファイル
+
+&lt;ni:///sha-256;n6dRsLyGG5guU-l8jC1JZGGO3uEVgQq85LNnpZhtQX0&gt;
+    a bof:File ;
+    rdfs:label "data/zip/13100_tokyo23-ku_2020_citygml_3_2_op.zip#13100_tokyo23-ku_2020_citygml_3_2_op/udx/bldg/53392546_bldg_6697_2_op.gml",
+    dct:title "data/gml/13100_tokyo23-ku_2020_citygml_3_2_op/udx/bldg/53392546_bldg_6697_2_op.gml" ;
+    dcat:landingPage
+        &lt;https://www.geospatial.jp/ckan/dataset/plateau-tokyo23ku/resource/0bab2b7f-6962-41c8-872f-66ad9b40dcb1&gt; ;
+    dcat:distribution [
+        a dcat:Distribution ;
+        dcat:downloadURL
+            &lt;https://gic-plateau.s3.ap-northeast-1.amazonaws.com/2020/13100_tokyo23-ku_2020_citygml_3_2_op.zip&gt; ;
+    ] ;
+    dct:isPartOf &lt;ni:///sha-256;gS2jAHPpmJ_f5SYAEFhhtc1qXQB2ZrZjsJiLMmpPmWw&gt; ;
+    dct:spatial &lt;http://data.e-stat.go.jp/lod/gridCode/G2053392546&gt; ;
+    dct:temporal &lt;http://dbpedia.org/resource/2020&gt; ;
+.
+</pre></td>
+            </tr>
+            <tr>
+              <th>
+                <a class="hover_property" href="http://www.w3.org/2004/02/skos/core#note" title="None. Defined in None">Note</a>
+              </th>
+              <td><p><code>bof:File</code> の ID は当該ファイルの SHA256 を <a href='https://dx.doi.org/10.17487/rfc6920'>'Named Information' Identifier</a> 
+として URI 化したものを使用します。</p>
+<p>zip, 7z, tar, tar.gz といったアーカイブファイルには通常 <code>bof:Bag</code> を使用し、
+アーカイブに含まれるファイルの実体を <code>bof:File</code> としてモデリングします。
+アーカイブ内のファイル階層を <code>bof:Bag</code> を使用して表現することも可能です。</p>
+<p>ただし、<a href='https://developers.google.com/transit/gtfs'>GTFS</a> や
+<a href='https://ja.wikipedia.org/wiki/Office_Open_XML'>Office Open XML</a> のように
+仕様上 zip 等でパッケージされているものの、
+zip そのものを <code>dcat:Dataset</code> とみなすことが妥当なファイルの場合には
+<code>bof:File</code> を使用します。</p></td>
+            </tr>
+            <tr>
+              <th>
+                <a class="hover_property" href="http://www.w3.org/2000/01/rdf-schema#subClassOf" title="None. Defined in None">Sub Class Of</a>
+              </th>
+              <td>
+                <a href="http://www.w3.org/ns/dcat#Dataset">dcat:Dataset</a>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="property entity" id="bof:Slice">
+          <h3>bof:Slice
+            <sup class="sup-c" title="OWL/RDFS Class">c</sup>
+          </h3>
+          <table>
+            <tr>
+              <th>IRI</th>
+              <td>
+                <code>https://indigo-lab.github.io/bof#Slice</code>
+              </td>
+            </tr>
+            <tr>
+              <th>
+                <a class="hover_property" href="http://purl.org/dc/terms/description" title="None. Defined in None">Description</a>
+              </th>
+              <td><p><code>bof:File</code> の集合。<code>dcat:Dataset</code> のサブクラス。</p></td>
+            </tr>
+            <tr>
+              <th>
+                <a class="hover_property" href="http://www.w3.org/2004/02/skos/core#example" title="None. Defined in None">Example</a>
+              </th>
+              <td><pre># SPARQL によって生成される bof:Slice
+
+&lt;urn:uuid:01923271-9d83-7ffd-95d9-eb1c88f6a9d5&gt;
+    a bof:Slice ;
+    rdfs:label "13100_tokyo23-ku_2020_citygml_3_2_op.zip のうち bldg のみ" ;
+    dct:hasPart &lt;ni:...&gt; , &lt;ni:...&gt; ... ;
+    prov:wasGeneratedBy [
+        a schema:SearchAction ;
+        schema:query "SELECT ?file WHERE {?file a bof:File ; dcat:theme citygml:Building}" ;
+        schema:target <ni:///sha-256;gS2jAHPpmJ_f5SYAEFhhtc1qXQB2ZrZjsJiLMmpPmWw>
+    ]
+.
+</pre></td>
+            </tr>
+            <tr>
+              <th>
+                <a class="hover_property" href="http://www.w3.org/2004/02/skos/core#note" title="None. Defined in None">Note</a>
+              </th>
+              <td><p><code>bof:Slice</code> はなんらかの条件に従って作成された
+<code>bof:File</code> の集合です。</p>
+<p><code>bof:Bag</code> の ID は <a href='https://dx.doi.org/10.17487/rfc9562'>UUID</a> で生成するものとします。</p></td>
+            </tr>
+            <tr>
+              <th>
+                <a class="hover_property" href="http://www.w3.org/2000/01/rdf-schema#subClassOf" title="None. Defined in None">Sub Class Of</a>
+              </th>
+              <td>
+                <a href="http://www.w3.org/ns/dcat#Dataset">dcat:Dataset</a>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="section" id="objectproperties">
+        <h2>Object Properties</h2>
+        <div class="property entity" id="dct:hasPart">
+          <h3>dct:hasPart
+            <sup class="sup-op" title="OWL Object Property">op</sup>
+          </h3>
+          <table>
+            <tr>
+              <th>IRI</th>
+              <td>
+                <code>http://purl.org/dc/terms/hasPart</code>
+              </td>
+            </tr>
+            <tr>
+              <th>
+                <a class="hover_property" href="http://www.w3.org/2004/02/skos/core#note" title="None. Defined in None">Note</a>
+              </th>
+              <td><p><code>dct:hasPart</code> は <code>bof:Bag</code> が配下の
+<code>bof:Bag</code> または <code>bof:File</code> を参照するために使用します。
+これによってツリー構造を表現できます。</p>
+<p>また、<code>bof:Slice</code> が配下の <code>bof:File</code> を参照する際にも使用されます。</p>
+<p>See Also : <a href='https://www.w3.org/TR/vocab-dcat-3/#Property:resource_has_part'>DCAT3 6.4.21 Property: has part</a></p>
+<p>See Also : <a href='https://www.w3.org/TR/vocab-dcat-3/#inverse-properties'>DCAT3 7. Use of inverse properties</a></p></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div id="namespaces">
+        <h2>Namespaces</h2>
+        <dl>
+          <dt id="bof">bof</dt>
+          <dd>
+            <code>https://indigo-lab.github.io/bof#</code>
+          </dd>
+          <dt id="dcat">dcat</dt>
+          <dd>
+            <code>http://www.w3.org/ns/dcat#</code>
+          </dd>
+          <dt id="dct">dct</dt>
+          <dd>
+            <code>http://purl.org/dc/terms/</code>
+          </dd>
+          <dt id="ns1">ns1</dt>
+          <dd>
+            <code>https://indigo-lab.github.io/</code>
+          </dd>
+          <dt id="owl">owl</dt>
+          <dd>
+            <code>http://www.w3.org/2002/07/owl#</code>
+          </dd>
+          <dt id="prov">prov</dt>
+          <dd>
+            <code>http://www.w3.org/ns/prov#</code>
+          </dd>
+          <dt id="rdf">rdf</dt>
+          <dd>
+            <code>http://www.w3.org/1999/02/22-rdf-syntax-ns#</code>
+          </dd>
+          <dt id="rdfs">rdfs</dt>
+          <dd>
+            <code>http://www.w3.org/2000/01/rdf-schema#</code>
+          </dd>
+          <dt id="sdo">sdo</dt>
+          <dd>
+            <code>https://schema.org/</code>
+          </dd>
+          <dt id="skos">skos</dt>
+          <dd>
+            <code>http://www.w3.org/2004/02/skos/core#</code>
+          </dd>
+        </dl>
+      </div>
+      <div id="legend">
+        <h2>Legend</h2>
+        <table class="entity">
+          <tr>
+            <td>
+              <sup class="sup-c" title="OWL/RDFS Class">c</sup>
+            </td>
+            <td>Classes</td>
+          </tr>
+          <tr>
+            <td>
+              <sup class="sup-op" title="OWL Object Property">op</sup>
+            </td>
+            <td>Object Properties</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div id="pylode">
+      <p>made by 
+        <a href="https://github.com/rdflib/pyLODE">
+          <span id="p">p</span>
+          <span id="y">y</span>
+          <span>LODE</span>
+        </a>
+        <a href="https://github.com/rdflib/pyLODE/release/3.0.1" id="version">3.0.1</a>
+      </p>
+    </div>
+    <div id="toc">
+      <h3>Table of Contents</h3>
+      <ul class="first">
+        <li>
+          <h4>
+            <a href="#metadata">Metadata</a>
+          </h4>
+        </li>
+        <li>
+          <h4>
+            <a href="#classes">Classes</a>
+          </h4>
+          <ul class="second">
+            <li>
+              <a href="#bof:Bag">bof:Bag</a>
+            </li>
+            <li>
+              <a href="#bof:File">bof:File</a>
+            </li>
+            <li>
+              <a href="#bof:Slice">bof:Slice</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <h4>
+            <a href="#objectproperties">Object Properties</a>
+          </h4>
+          <ul class="second">
+            <li>
+              <a href="#dct:hasPart">dct:hasPart</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <h4>
+            <a href="#namespaces">Namespaces</a>
+          </h4>
+          <ul class="second">
+            <li>
+              <a href="#bof">bof</a>
+            </li>
+            <li>
+              <a href="#dcat">dcat</a>
+            </li>
+            <li>
+              <a href="#dct">dct</a>
+            </li>
+            <li>
+              <a href="#ns1">ns1</a>
+            </li>
+            <li>
+              <a href="#owl">owl</a>
+            </li>
+            <li>
+              <a href="#prov">prov</a>
+            </li>
+            <li>
+              <a href="#rdf">rdf</a>
+            </li>
+            <li>
+              <a href="#rdfs">rdfs</a>
+            </li>
+            <li>
+              <a href="#sdo">sdo</a>
+            </li>
+            <li>
+              <a href="#skos">skos</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <h4>
+            <a href="#legend">Legend</a>
+          </h4>
+          <ul class="second"></ul>
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>

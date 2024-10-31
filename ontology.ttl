@@ -1,0 +1,155 @@
+@prefix bof: <https://indigo-lab.github.io/bof#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dqv: <http://www.w3.org/ns/dqv#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix sdo: <https://schema.org/> .
+
+# Ontology
+
+<https://indigo-lab.github.io/bof>
+    a owl:Ontology ;
+    dct:title "Ontology for resoloving 'Bag Of Files (bof)'" ;
+    dct:created "2024-10-30"^^xsd:date ;
+    dct:description """DCAT で言及されている <a href='https://www.w3.org/TR/vocab-dcat-3/#examples-bag-of-files'>Bag Of Files</a> は
+データカタログやレポジトリにおいて単にファイルが集められているものを指し、
+個々のファイル間の関係は整備されておらず、<code>dcat:Dataset</code> と <code>dcat:Distribution</code> が正しく区別されていません。
+
+このオントロジーは Bag of Files を <code>bof:Bag</code> や <code>bof:File</code> といったクラスで記録し、
+それらを Findable かつ Reusable な <code>dcat:Dataset</code> や <code>dcat:DatasetSeries</code> 
+に再編成する過程で使用することを目的としています。
+    """@ja ;
+    dct:creator [
+         sdo:name "indigo-lab" ;
+         sdo:url <https://github.com/indigo-lab> ;
+    ] ;
+.
+
+# Class
+
+bof:Bag
+    a owl:Class ;
+    dct:title "bof:Bag" ;
+    rdfs:subClassOf dcat:Dataset ;
+    dct:description "コンテナ、フォルダ、アーカイブ。他のファイルやコンテナ、フォルダ、アーカイブを保持する。<code>dcat:Dataset</code> のサブクラス。"@ja ;
+    skos:note """<code>bof:Bag</code> の ID は <a href='https://dx.doi.org/10.17487/rfc9562'>UUID</a> で生成するものとします。
+
+ただし、zip, 7z, tar, tar.gz といったアーカイブファイルを <code>bof:Bag</code> としてモデリングする場合には
+当該ファイルの SHA256 を算出して <a href='https://dx.doi.org/10.17487/rfc6920'>'Named Information' Identifier</a> 
+を ID として使用します。
+    """@ja ;
+    skos:example """<pre>
+# Plateau プロジェクト全体を指すコンテナ
+
+&lt;urn:uuid:01923271-71e1-7223-a5c3-2f2bd0b7fb3a&gt;
+  a bof:Bag ;
+  dcat:landingPage
+    &lt;https://www.mlit.go.jp/plateau/&gt; ,
+    &lt;https://www.geospatial.jp/ckan/dataset/plateau&gt; ;
+.  
+
+# Plateau 東京23区2020年 一式を収録した zip
+
+&lt;ni:///sha-256;gS2jAHPpmJ_f5SYAEFhhtc1qXQB2ZrZjsJiLMmpPmWw&gt;
+  a bof:Bag ; 
+  rdfs:label "data/zip/13100_tokyo23-ku_2020_citygml_3_2_op.zip" ;
+  dcat:landingPage
+    &lt;https://www.geospatial.jp/ckan/dataset/plateau-tokyo23ku/resource/0bab2b7f-6962-41c8-872f-66ad9b40dcb1&gt; ;
+  dcat:distribution [
+    a dcat:Distribution ;
+    dcat:downloadURL
+      &lt;https://gic-plateau.s3.ap-northeast-1.amazonaws.com/2020/13100_tokyo23-ku_2020_citygml_3_2_op.zip&gt; ;
+  ] ;
+  dct:spatial &lt;http://data.e-stat.go.jp/lod/sac/13000&gt; ;
+  dct:temporal &lt;http://dbpedia.org/resource/2020&gt; ;
+  dct:isPartOf &lt;uuid:01923271-71e1-7223-a5c3-2f2bd0b7fb3a&gt; ;
+</pre>"""
+.
+
+bof:File
+    a owl:Class ;
+    rdfs:label "bof:File" ;
+    rdfs:subClassOf dcat:Dataset ;
+    dct:description "ファイルの実体。<code>dcat:Dataset</code> のサブクラス。"@ja ;
+    skos:note """
+<code>bof:File</code> の ID は当該ファイルの SHA256 を <a href='https://dx.doi.org/10.17487/rfc6920'>'Named Information' Identifier</a> 
+として URI 化したものを使用します。
+
+zip, 7z, tar, tar.gz といったアーカイブファイルには通常 <code>bof:Bag</code> を使用し、
+アーカイブに含まれるファイルの実体を <code>bof:File</code> としてモデリングします。
+アーカイブ内のファイル階層を <code>bof:Bag</code> を使用して表現することも可能です。
+
+ただし、<a href='https://developers.google.com/transit/gtfs'>GTFS</a> や
+<a href='https://ja.wikipedia.org/wiki/Office_Open_XML'>Office Open XML</a> のように
+仕様上 zip 等でパッケージされているものの、
+zip そのものを <code>dcat:Dataset</code> とみなすことが妥当なファイルの場合には
+<code>bof:File</code> を使用します。
+"""@ja ;
+    skos:example """<pre># zip 内ファイル
+
+&lt;ni:///sha-256;n6dRsLyGG5guU-l8jC1JZGGO3uEVgQq85LNnpZhtQX0&gt;
+    a bof:File ;
+    rdfs:label "data/zip/13100_tokyo23-ku_2020_citygml_3_2_op.zip#13100_tokyo23-ku_2020_citygml_3_2_op/udx/bldg/53392546_bldg_6697_2_op.gml",
+    dct:title "data/gml/13100_tokyo23-ku_2020_citygml_3_2_op/udx/bldg/53392546_bldg_6697_2_op.gml" ;
+    dcat:landingPage
+        &lt;https://www.geospatial.jp/ckan/dataset/plateau-tokyo23ku/resource/0bab2b7f-6962-41c8-872f-66ad9b40dcb1&gt; ;
+    dcat:distribution [
+        a dcat:Distribution ;
+        dcat:downloadURL
+            &lt;https://gic-plateau.s3.ap-northeast-1.amazonaws.com/2020/13100_tokyo23-ku_2020_citygml_3_2_op.zip&gt; ;
+    ] ;
+    dct:isPartOf &lt;ni:///sha-256;gS2jAHPpmJ_f5SYAEFhhtc1qXQB2ZrZjsJiLMmpPmWw&gt; ;
+    dct:spatial &lt;http://data.e-stat.go.jp/lod/gridCode/G2053392546&gt; ;
+    dct:temporal &lt;http://dbpedia.org/resource/2020&gt; ;
+.
+</pre>"""
+.
+
+bof:Slice
+    a owl:Class ;
+    rdfs:label "bof:Slice" ;
+    rdfs:subClassOf dcat:Dataset ;
+    dct:description "<code>bof:File</code> の集合。<code>dcat:Dataset</code> のサブクラス。"@ja ;
+    skos:note """<code>bof:Slice</code> はなんらかの条件に従って作成された
+<code>bof:File</code> の集合です。
+
+<code>bof:Bag</code> の ID は <a href='https://dx.doi.org/10.17487/rfc9562'>UUID</a> で生成するものとします。
+"""@ja;
+    skos:example """<pre># SPARQL によって生成される bof:Slice
+
+&lt;urn:uuid:01923271-9d83-7ffd-95d9-eb1c88f6a9d5&gt;
+    a bof:Slice ;
+    rdfs:label "13100_tokyo23-ku_2020_citygml_3_2_op.zip のうち bldg のみ" ;
+    dct:hasPart &lt;ni:...&gt; , &lt;ni:...&gt; ... ;
+    prov:wasGeneratedBy [
+        a schema:SearchAction ;
+        schema:query "SELECT ?file WHERE {?file a bof:File ; dcat:theme citygml:Building}" ;
+        schema:target <ni:///sha-256;gS2jAHPpmJ_f5SYAEFhhtc1qXQB2ZrZjsJiLMmpPmWw>
+    ]
+.
+</pre>"""
+.
+
+# Property
+
+dct:hasPart
+    a owl:ObjectProperty ;
+    rdfs:label "dct:hasPart" ;
+    skos:note """
+<code>dct:hasPart</code> は <code>bof:Bag</code> が配下の
+<code>bof:Bag</code> または <code>bof:File</code> を参照するために使用します。
+これによってツリー構造を表現できます。
+
+また、<code>bof:Slice</code> が配下の <code>bof:File</code> を参照する際にも使用されます。
+
+See Also : <a href='https://www.w3.org/TR/vocab-dcat-3/#Property:resource_has_part'>DCAT3 6.4.21 Property: has part</a>
+
+See Also : <a href='https://www.w3.org/TR/vocab-dcat-3/#inverse-properties'>DCAT3 7. Use of inverse properties</a>
+"""@ja ;
+.
+
