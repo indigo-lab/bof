@@ -14,7 +14,7 @@
 
 <https://indigo-lab.github.io/bof>
     a owl:Ontology ;
-    dct:title "Ontology for resoloving 'Bag Of Files (bof)'" ;
+    dct:title "Ontology for resolving 'Bag Of Files (bof)'" ;
     dct:created "2024-10-30"^^xsd:date ;
     dct:description """DCAT で言及されている <a href='https://www.w3.org/TR/vocab-dcat-3/#examples-bag-of-files'>Bag Of Files</a> は
 データカタログやレポジトリにおいて単にファイルが集められているものを指し、
